@@ -240,7 +240,8 @@ GameServer.prototype.onServerSocketError = function (error) {
     process.exit(1); // Exits the program
 };
 
-GameServer.prototype.onClientSocketOpen = function (ws) {
+GameServer.prototype.onClientSocketOpen = function (ws, req_) {
+    var req = ws.upgradeReq || req; //Fix for the new ws module
     var logip = ws._socket.remoteAddress + ":" + ws._socket.remotePort;
     ws.on('error', function (err) {
         Logger.writeError("[" + logip + "] " + err.stack);
@@ -312,7 +313,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
 };
 
 GameServer.prototype.onClientSocketClose = function (ws, code) {
-    if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
+    if (ws != null && ws._socket != null && ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
         ws._socket.destroy();
     }
     if (this.socketCount < 1) {
